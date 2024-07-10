@@ -692,6 +692,98 @@ class Register
         return Integer.toHexString(temp);
     }
 
+//    String subtractionEffectingAC(String opr1,String opr2)
+//    {
+//        int num1=Integer.parseInt(opr1, 16);
+//        int num2=Integer.parseInt(opr2, 16);
+//        String bopr1=Integer.toBinaryString(num1);
+//        String bopr2=Integer.toBinaryString(num2);
+//
+//        //convert bopr1 to 8bit binary
+//        int tmp=8-bopr1.length();
+//        String dup="";
+//        for(int j=0;j<tmp;j++) dup=dup+"0";
+//                    bopr1=dup+bopr1;
+//
+//        //convert bopr2 to 8bit binary
+//        tmp=8-bopr2.length();
+//        dup="";
+//        for(int j=0;j<tmp;j++) dup=dup+"0";
+//                    bopr2=dup+bopr2;
+//        //////////////////////////////////////
+//        bopr1=bopr1.substring(4, 8);
+//        bopr2=bopr2.substring(4, 8);
+//        num1=Integer.parseInt(bopr1, 2);
+//        num2=Integer.parseInt(bopr2, 2);
+//        if(num1<num2)
+//           setAuxCarry(1);
+//        else
+//            setAuxCarry(0);
+//        num1=Integer.parseInt(opr1, 16);
+//        num2=Integer.parseInt(opr2, 16);
+//        int temp=num1-num2;
+//        String retString=Integer.toHexString(temp);
+//
+//        //if(retString.length()>2) retString=retString.substring(retString.length()-2, retString.length());
+//        //else
+//        if(retString.length()<=2)
+//        {
+//        tmp=2-retString.length();
+//        dup="";
+//        for(int j=0;j<tmp;j++) dup=dup+"0";
+//              retString=dup+retString;
+//        }
+//        return retString;//Integer.toHexString(temp);
+//    }
+
+    
+    
+    void performAuxCarryOperation(String opr1, String opr2){
+        int n1=Integer.parseInt(opr1, 2);
+        int n2=Integer.parseInt(opr2, 2);
+//        String opr2 = Integer.toBinaryString(val2);
+//        int n = opr2.length();
+//        int i;
+//        for(i = n-1;i>=0;i--){
+//            if(opr2.charAt(i) == '1')break;
+//        }
+//        if(i== -1)opr2 = "1" + opr2;
+//        else{
+//            for(int k= i-1; k>=0;k--){
+//                if(opr2.charAt(k) == '1')
+//                    opr2 = opr2.substring(0, k) + '0' + opr2.substring(k+1);
+//                else
+//                    opr2 = opr2.substring(0, k) + '1' + opr2.substring(k+1);   
+//            }
+//        }
+//        val2 = Integer.parseInt(opr2, 2);
+        int res = n1 + n2;
+        String result = Integer.toBinaryString(res);
+        System.out.println("Here "+result);
+        if(result.length()>4)setAuxCarry(1);
+        else setAuxCarry(0);
+    }
+    
+    String getTwosComplement(String opr){
+        int n = opr.length();
+        int i;
+        for(i = n-1;i>=0;i--){
+            if(opr.charAt(i) == '1')break;
+        }
+        if(i== -1)opr = "1" + opr;
+        else{
+            for(int k= i-1; k>=0;k--){
+                if(opr.charAt(k) == '1')
+                    opr = opr.substring(0, k) + '0' + opr.substring(k+1);
+                else
+                    opr = opr.substring(0, k) + '1' + opr.substring(k+1);   
+            }
+        }
+        return opr;
+    }
+    
+    
+    //Changed..................................................................................................
     String subtractionEffectingAC(String opr1,String opr2)
     {
         int num1=Integer.parseInt(opr1, 16);
@@ -710,22 +802,35 @@ class Register
         dup="";
         for(int j=0;j<tmp;j++) dup=dup+"0";
                     bopr2=dup+bopr2;
-        //////////////////////////////////////
-        bopr1=bopr1.substring(4, 8);
-        bopr2=bopr2.substring(4, 8);
+        
+//      MODIFYAuxCArry 
+        String rnum2 = getTwosComplement(bopr2);
+        String Bopr1=bopr1.substring(4, 8);
+        String Bopr2=rnum2.substring(4, 8);
+        int n1=Integer.parseInt(Bopr1, 2);
+        int n2=Integer.parseInt(Bopr2, 2);
+        performAuxCarryOperation(Bopr1,Bopr2);
+        
+//      Subtraction
         num1=Integer.parseInt(bopr1, 2);
         num2=Integer.parseInt(bopr2, 2);
-        if(num1<num2)
-           setAuxCarry(1);
-        else
-            setAuxCarry(0);
-        num1=Integer.parseInt(opr1, 16);
-        num2=Integer.parseInt(opr2, 16);
-        int temp=num1-num2;
-        String retString=Integer.toHexString(temp);
-
-        //if(retString.length()>2) retString=retString.substring(retString.length()-2, retString.length());
-        //else
+        int r = Integer.parseInt("100000000",2);
+        int result = num1;
+        if(num2!=0){
+            result = num1 + (r - num2);
+        }
+        System.out.println("Num1 : " + num1);
+        System.out.println("Num2 : "+num2);
+        System.out.println("Result: "+result);
+        
+        String bresult = Integer.toBinaryString(result);
+        System.out.println("Binary Result : "+bresult);
+        if(num1 >= num2){
+            bresult = bresult.substring(1);
+        }
+        result = Integer.parseInt(bresult, 2);
+        String retString=Integer.toHexString(result);
+        
         if(retString.length()<=2)
         {
         tmp=2-retString.length();
@@ -733,8 +838,11 @@ class Register
         for(int j=0;j<tmp;j++) dup=dup+"0";
               retString=dup+retString;
         }
+        
+        if(num1>=num2)setCarry(0);
+        else setCarry(1);
+       
         return retString;//Integer.toHexString(temp);
     }
-
 
 }
